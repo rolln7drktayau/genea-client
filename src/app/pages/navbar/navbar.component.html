@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" class="material-icons">
+</head>
+
+<body>
+    <div class="main">
+        <nav id="menu">
+            <img class="logo__icon" src="assets/images/SignIn.svg" alt="">
+            <h3 class="logo_title">GENEA</h3>
+            <ul>
+                <li *ngIf="isAuthenticated" (click)="navigate('/home')">
+                    <i class="material-icons md-light">
+                        home
+                    </i>
+                    <p>Home</p>
+                </li>
+                <li *ngIf="isAuthenticated" (click)="navigate('/profile')">
+                    <i class="material-icons md-light">
+                        account_circle
+                    </i>
+                    <p>Profile</p>
+                </li>
+                <li *ngIf="isAuthenticated" (click)="navigate('/family')">
+                    <i class="material-icons md-light">
+                        auto_stories
+                    </i>
+                    <p>Family</p>
+                </li>
+                <li *ngIf="isAuthenticated" (click)="navigate('/tree')">
+                    <i class="material-icons md-light">
+                        account_tree
+                    </i>
+                    <p>Tree</p>
+                </li>
+                <li *ngIf="isAuthenticated" (click)="navigate('/settings')">
+                    <i class="material-icons md-light">
+                        settings
+                    </i>
+                    <p>settings</p>
+                </li>
+                <li (click)="toggleTheme()">
+                    <i class="material-icons md-light">dark_mode</i>
+                    <p>Theme</p>
+                </li>
+                <li (click)="signOut()">
+                    <i class="material-icons md-light">logout</i>
+                    <p>Sign Out</p>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</body>
+
+</html>
