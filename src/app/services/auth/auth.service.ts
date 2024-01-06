@@ -15,6 +15,26 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
+  // Login 
+  checkPerson(person: Person): Observable<Person> {
+    return this.http.post<Person>(`${this.apiUrl}/check`, person);
+  }
+
+  getPersonByEmail(person: Person): Observable<Person> {
+    return this.http.post<Person>(`${this.apiUrl}/emailcheck`, person);
+  }
+
+  // Updates
+  updateDb(person: Person): Observable<Person> {
+    return this.http.put<Person>(`${this.apiUrl}/updatedb`, person);
+  }
+
+  updatePerson(id: string, personDetails: Person): Observable<Person> {
+    return this.http.put<Person>(`${this.apiUrl}/update/${id}`, personDetails);
+  }
+
+
+
   setSession(person: Person) {
     // this.isLoggedIn = true;
     this.family.push(person);
@@ -22,7 +42,7 @@ export class AuthService {
     sessionStorage.setItem('UserFirstName', person.firstname);
     sessionStorage.setItem('UserLastName', person.lastname);
     sessionStorage.setItem('UserGender', person.gender);
-    sessionStorage.setItem('UserPhoto', person.photo);
+    sessionStorage.setItem('UserPhoto', person.img);
     sessionStorage.setItem('User', JSON.stringify(person));
 
     console.log(sessionStorage.getItem('UserFirstName'));
@@ -32,9 +52,7 @@ export class AuthService {
     sessionStorage.clear();
   }
 
-  checkPerson(person: Person): Observable<Person> {
-    return this.http.post<Person>(`${this.apiUrl}/check`, person);
-  }
+
 
   isAdmin(person: Person): boolean {
     return (person.email === 'rct' && person.password === 'rct');
@@ -60,22 +78,14 @@ export class AuthService {
     return this.http.get<Person>(`${this.apiUrl}/${id}`);
   }
 
-  updateDb(person: Person): Observable<Person> {
-    return this.http.put<Person>(`${this.apiUrl}/updatedb`, person);
-  }
-
   sendEmail(initiator: Person, person: Person): Observable<Map<Person, Person>> {
     const headers = { 'content-type': 'application/json' }
     const body = JSON.stringify({ initiator, person });
     return this.http.post<Map<Person, Person>>(`${this.apiUrl}/sendEmail`, body, { 'headers': headers });
   }
 
-  updatePerson(id: string, personDetails: Person): Observable<Person> {
-    return this.http.put<Person>(`${this.apiUrl}/${id}`, personDetails);
-  }
-
-  deletePerson(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  deletePerson(id: string): Observable<Person> {
+    return this.http.delete<Person>(`${this.apiUrl}/delete/${id}`);
   }
 
   init(): Observable<Person[] | string> {

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Person } from '../../models/person.model';
+import { Node } from '../../models/node.model';
 
 @Injectable({
   providedIn: 'root'
@@ -10,8 +11,53 @@ import { Person } from '../../models/person.model';
 export class PersonService {
   private apiUrl = 'http://localhost:8080/api/persons';
   isLoggedIn: boolean = false
+  nodes: Node[] = []; // this would be your actual data
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
+
+  getNodeRelationships(nodeId: number): Node[] {
+    const node = this.nodes.find(node => node.id === nodeId);
+    if (!node) {
+      throw new Error(`Node with ID ${nodeId} not found.`);
+    }
+
+    // Find parent node
+    const parentNode = this.nodes.find(node => node.id === node.pid);
+
+    // Find child nodes
+    const childNodes = this.nodes.filter(node => node.pid === nodeId);
+
+    // Combine parent and child nodes
+    const relationships = [];
+    if (parentNode) {
+      relationships.push(parentNode);
+    }
+    relationships.push(...childNodes);
+
+    return relationships;
+  }
+
+  removeIdFromPersons(persons: any[], personToRemove: Person): any[] {
+    const idToRemove = personToRemove.id;
+    persons.forEach(person => {
+
+      // Remove id from partner array
+      if (person.pid)
+        person.pid = person.pid.filter((id: string) => id !== idToRemove);
+
+      // Remove id from mother and father attributes
+      if (person.mid === idToRemove) {
+        person.mid = null;
+      }
+      if (person.fid === idToRemove) {
+        person.fid = null;
+      }
+    });
+
+    // Remove the person with the given ID from the array
+    persons = persons.filter(person => person.id !== idToRemove);
+    return persons;
+  }
 
   getAllPersons(): Observable<Person[]> {
     return this.http.get<Person[]>(`${this.apiUrl}/`);

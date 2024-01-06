@@ -5,7 +5,7 @@ import { AuthService } from '../services/auth/auth.service';
 export const authGuard: CanActivateFn = () => {
   const authService:AuthService = inject(AuthService);
   const router: Router = inject(Router);
-  console.log('TEST : ', authService.isAValidUser);
+  console.log('Guard => Can connect ? ', authService.isAValidUser);
   // if (authService.isAValidUser) {
   //   return true;
   // } else {

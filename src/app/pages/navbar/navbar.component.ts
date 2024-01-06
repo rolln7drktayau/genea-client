@@ -30,13 +30,13 @@ export class NavbarComponent {
 
   toggleTheme() {
     // Implement your theme toggle logic here
-    console.log("theme changed");
+    console.log("Theme changed");
     this.themeService.setDarkTheme(false);
   }
 
   signOut() {
     // Implement your sign out logic here
-    console.log("sign out");
+    console.log("Signed Out !!!");
     this.authService.deleteSession();
     // window.location.reload();
     this.router.navigate(['/login']);

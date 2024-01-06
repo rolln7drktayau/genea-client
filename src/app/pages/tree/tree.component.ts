@@ -3,14 +3,13 @@ import { Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../navbar/navbar.component';
-import { PersonService } from '../../services/person/person.service';
 import { UserService } from '../../services/user/user.service';
 // import { Person } from './models/person.model';
 import { User } from '../../models/user.model';
 import FamilyTree from '@balkangraph/familytree.js';
-import { HomeComponent } from '../../pages/home/home.component';
 import { AuthService } from '../../services/auth/auth.service';
 import { Person } from '../../models/person.model';
+import { PersonService } from '../../services/person/person.service';
 
 declare var observer: any;
 
@@ -23,21 +22,13 @@ declare var observer: any;
 })
 export class TreeComponent implements OnInit {
 
-  title = 'Genea';
-  persons: any[] = [];
-  users: User[] = [];
-
   person: Person = new Person();
-
-  counter = 0;
-  root = '';
-  check = true;
-
+  persons: any[] = [];
   familyData: any[] = [];
 
-  constructor(private authService: AuthService, private userService: UserService) {
+  constructor(private authService: AuthService, private personService: PersonService) {
     this.authService = authService;
-    this.userService = userService;
+    this.personService = personService;
   }
 
   ngOnInit() {
@@ -45,38 +36,36 @@ export class TreeComponent implements OnInit {
     let id = sessionStorage.getItem('UserId');
     if (id != null) {
       this.authService.getFamily(id).subscribe(persons => {
-        console.log('Family: ', persons);
+        console.log('Your Family', persons);
         this.familyData = persons;
         const transformedPersons = this.transformPersonsData(persons);
-        console.log('Transform : ', transformedPersons);
+        console.log('Transformed Data', transformedPersons);
         this.persons = transformedPersons;
 
         const tree = document.getElementById('tree');
         if (tree) {
-          FamilyTree.SEARCH_PLACEHOLDER = "Find a person..."; // the default value is "Search"
+          FamilyTree.SEARCH_PLACEHOLDER = "Get focused on a person..."; // the default value is "Search"
           var family = new FamilyTree(tree, {
-            tags: {
-              filter: {
-                template: 'dot'
-              }
-            },
-            // siblingSeparation: 120,
-            // mode: 'dark',
+            // template : 'hugo',
             enableSearch: true,
-            // mouseScrool: FamilyTree.action.none,
             nodeMenu: {
               edit: { text: 'Edit' },
               details: { text: 'Details' },
-              remove: { text: "Remove" }
+              remove: { text: 'Delete' }
             },
             editForm: {
               addMore: '',
               generateElementsFromFields: false,
               // titleBinding: "name",
-              // photoBinding: "photo",
-              // buttons: {
-              //   add: null
-              // },
+              photoBinding: "photo",
+              buttons: {
+                remove: {
+                  icon: FamilyTree.icon.remove(24, 24, '#fff'),
+                  text: 'Delete',
+                  hideIfEditMode: true,
+                  hideIfDetailsMode: false
+                }
+              },
               elements: [
                 [
                   { type: 'textbox', label: 'First Name', binding: 'firstname' },
@@ -87,6 +76,7 @@ export class TreeComponent implements OnInit {
                   { type: 'date', label: 'Birthday Date', binding: 'bdate' }
                 ],
                 [
+                  { type: 'textbox', label: 'Gender', binding: 'gender'},
                   { type: 'textbox', label: 'Photo Url', binding: 'ImgUrl', btn: 'Upload' }
                 ]
               ]
@@ -105,39 +95,53 @@ export class TreeComponent implements OnInit {
             nodeBinding: {
               field_0: "name",
               field_1: "email",
-              // field_2: "id",
+              // field_2: "father",
+              // field_3: "mid",
               img_0: "img",
-            }
+            },
+            menu: {
+              pdf: { text: "Export PDF" },
+              png: { text: "Export PNG" },
+              svg: { text: "Export SVG" },
+              csv: { text: "Export CSV" }
+            },
           });
-
 
           family.editUI.on('save', (sender, args) => {
-            this.authService.checkPerson(args.data).subscribe(result => {
-              let initiator = new Person();
-              let user = sessionStorage.getItem('User');
-              if (user != null) {
-                initiator = JSON.parse(user);
-                // console.log(initiator);
-                // console.log(args.data);
-                this.authService.sendEmail(initiator, args.data).subscribe(response => {
-                  console.log(response);
-                });
+            this.authService.getPersonByEmail(args.data).subscribe(isPresent => {
+              if (isPresent) {
+                console.warn('Founded person :', isPresent);
+                let toUpdate = this.updatePerson(isPresent, args.data);
+                this.updateData(toUpdate);
               } else {
-                console.log("No user in session storage");
+                this.mailHandler(args.data);
               }
             });
-            this.updateData(args.data);
           });
 
-          family.onUpdateNode((args) => {
-            console.log(args);
-            // this.updateData(args.addNodesData[0]);
-            for (let updateNodes of args.updateNodesData) {
-              this.updateData(updateNodes);
+          family.on('update', (sender, args) => {
+            if (!(args.removeNodeId == null) && !(args.removeNodeId == undefined)) {
+              // let toRemove: string = `"${args.removeNodeId}"`;
+              // console.log(toRemove);
+              this.authService.getPersonById(args.removeNodeId).subscribe(result => {
+                if (result) {
+                  if (result.email !== null && result.email !== undefined) {
+                    console.log('Person To Remove : ', result);
+                    let toUpdate = this.removePersonFromTree(result, args.removeNodeId);
+                    this.updateData(toUpdate);
+                  }
+                  else {
+                    this.authService.deletePerson(result.id).subscribe(isDeleted => {
+                      console.log('Person Deleted : ', isDeleted);
+                    });
+                  }
+                }
+              });
             }
           });
 
-          family.load(this.familyData);
+          family.load(this.persons);
+          // family.load(this.familyData);
         }
       });
     }
@@ -146,27 +150,19 @@ export class TreeComponent implements OnInit {
   transformPersonsData(persons: any[]): any[] {
     try {
       return persons.map((person) => {
-        let transformedPerson: { id: number; pids?: number[]; name: string; gender: string; email: string; img: string; mid?: number; fid?: number } = {
+        let transformedPerson: { id: number; pids?: number[]; firstname: string; lastname: string; name: string; gender: string; email: string; img: string; mid?: number; fid?: number, password?: string } = {
           id: person.id,
+          firstname: person.firstname,
+          lastname: person.lastname,
           name: `${person.firstname} ${person.lastname}`,
+          mid: person.mid,
+          fid: person.fid,
+          pids: person.pids,
           gender: person.gender,
           email: person.email,
-          img: 'https://cdn.balkan.app/shared/2.jpg', // Replace with the actual image URL
+          img: person.img, // Replace with the actual image URL
+          password: person.password
         };
-
-        // if (person.fid == null) {
-        //   // console.log(person.fid);
-        //   transformedPerson.fid = person.fid;
-        // }
-        // if (person.mid == null) {
-        //   // console.log(person.fid);
-        //   transformedPerson.mid = person.mid;
-        // }
-
-        // if (!person.pids == null) {
-        //   transformedPerson.pids = person.pids;
-        // }
-
         return transformedPerson;
       });
     } catch (error) {
@@ -175,26 +171,63 @@ export class TreeComponent implements OnInit {
     }
   }
 
+  mailHandler (recipient: Person) {
+    let initiator = new Person();
+    let user = sessionStorage.getItem('User');
+    if (user != null) {
+      initiator = JSON.parse(user);
+      // console.log(initiator);
+      // console.log(args.data);
+      this.authService.sendEmail(initiator, recipient).subscribe(response => {
+        console.log('Mail : ', response);
+      });
+    } else {
+      console.log("No user in session storage");
+    }
+    this.authService.createPerson(recipient).subscribe(response => { });
+  }
 
   updateData(personToUpdate: any) {
     this.authService.updateDb(personToUpdate).subscribe(person => {
       console.log('Updated Person:', person);
-      console.log('#Done');
+      console.log('The person was updated');
     });
   }
 
+  updatePerson(existingPerson: any, newPerson: any): any {
+    let idtodelete = existingPerson.id;
+
+    existingPerson.id = newPerson.id;
+    existingPerson.name = newPerson.name;
+    newPerson.pids.forEach((element: any) => {
+      existingPerson.pids.push(element);
+    });
+    existingPerson.mid = newPerson.mid;
+    existingPerson.fid = newPerson.fid;
+    existingPerson.bdate = newPerson.bdate;
+
+    this.authService.deletePerson(idtodelete).subscribe(isDeleted => {
+      if (isDeleted) {
+        console.log('User deleted !');
+      }
+    });
+
+    return existingPerson;
+  }
+
+  removePersonFromTree(person : any, nodeId : string) : any {
+    person.mid = '';
+    person.fid = '';
+    this.persons.forEach(person => {
+      if (person.pid)
+        person.pid = person.pid.filter((id: string) => id !== nodeId);
+    });
+  }
 
   getPersons(): void {
     this.authService.getAllPersons().subscribe(persons => {
       this.persons = persons;
       console.log('Persons:', this.persons);
-    });
-  }
-
-  getUsers(): void {
-    this.userService.getAllUsers().subscribe(users => {
-      this.users = users;
-      console.log('Users:', this.users);
     });
   }
 }
