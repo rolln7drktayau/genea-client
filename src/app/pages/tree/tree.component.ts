@@ -157,15 +157,16 @@ export class TreeComponent implements OnInit {
 
 
               this.authService.getPersonById(args.nodeId).subscribe(result => {
-                result.photo = file;
-                this.updateData(result);
+                let reader = new FileReader();
+                reader.onload = () => {
+                  let personToUpdate : Person = result;
+                  personToUpdate.photo = reader.result;
+                  this.updateData(personToUpdate);
+                  console.log(reader);
+                  console.warn('WARN : ', personToUpdate);
+                };
+                reader.readAsDataURL(file);
               });
-
-              // alert('upload the file');
-              console.log(file);
-              console.log(data);
-              console.log(args);
-              console.log(sender);
             })
           });
 
@@ -233,6 +234,7 @@ export class TreeComponent implements OnInit {
 
   updateData(personToUpdate: any) {
     this.authService.updateDb(personToUpdate).subscribe(person => {
+      console.log('To Update : ', personToUpdate);
       console.log('Updated Person:', person);
       console.log('The person was updated');
     });
@@ -258,17 +260,17 @@ export class TreeComponent implements OnInit {
     existingPerson.mid = newPerson.mid;
     existingPerson.fid = newPerson.fid;
     existingPerson.bdate = newPerson.bdate;
-    existingPerson.photo = newPerson.photo;
+    // existingPerson.photo = newPerson.photo;
 
     newPerson.mem.forEach((element: any) => {
       existingPerson.mem.push(element);
     });
 
-    this.authService.deletePerson(idtodelete).subscribe(isDeleted => {
-      if (isDeleted) {
-        console.log('User deleted !');
-      }
-    });
+    // this.authService.deletePerson(idtodelete).subscribe(isDeleted => {
+    //   if (isDeleted) {
+    //     console.log('User deleted !');
+    //   }
+    // });
 
     return existingPerson;
   }
