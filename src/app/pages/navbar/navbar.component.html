@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" class="material-icons">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 
 <body>
@@ -37,11 +38,14 @@
                     </i>
                     <p>Tree</p>
                 </li>
-                <li *ngIf="isAuthenticated" (click)="navigate('/settings')">
-                    <i class="material-icons md-light">
-                        settings
+                <li *ngIf="isAuthenticated" (click)="navigate('/memories')">
+                    <!-- <span class="material-symbols-outlined">
+                        person_play
+                        </span> -->
+                    <i class="material-icons md-light material-symbols-outlined">
+                        person_play
                     </i>
-                    <p>settings</p>
+                    <p>memories</p>
                 </li>
                 <li (click)="toggleTheme()">
                     <i class="material-icons md-light">dark_mode</i>
