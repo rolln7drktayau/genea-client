@@ -4,7 +4,6 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { RouterLink, RouterOutlet } from "@angular/router";
 import { NavbarComponent } from "../navbar/navbar.component";
 import { AuthService } from "../../services/auth/auth.service";
-import { UserService } from "../../services/user/user.service";
 declare var observer: any;
 
 @Component({

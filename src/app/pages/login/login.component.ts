@@ -37,6 +37,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     new observer();
+    // this.observer();
   }
 
   // Get Connected
@@ -49,7 +50,7 @@ export class LoginComponent implements OnInit {
       console.warn('Your data', this.signInForm.value);
       this.person.email = this.signInForm.get('email')?.value || '';
       this.person.password = this.signInForm.get('password')?.value || '';
-  
+
       this.authService.checkPerson(this.person).subscribe(result => {
         // console.log(result);
         if (result) {
@@ -62,7 +63,7 @@ export class LoginComponent implements OnInit {
           //   this.router.navigate(['/home']);
           // } else {
           // this.router.navigate(['/login']);
-          window.location.reload();
+          // window.location.reload();
           alert('Invalid email or password !');
         }
         // }
@@ -80,23 +81,23 @@ export class LoginComponent implements OnInit {
     }
 
     console.warn('Your data', this.signUpForm.value);
-    this.person.name = this.signUpForm.get('name')?.value || '';
+    this.person.firstname = this.signUpForm.get('name')?.value || '';
     this.person.email = this.signUpForm.get('email')?.value || '';
     this.person.password = this.signUpForm.get('password')?.value || '';
 
     this.authService.checkPerson(this.person).subscribe(result => {
       console.log(result);
       if (result) {
-        alert('The User already exists');
+        alert('The User already exists !\nUse your credentials to get logged !!!');
         // this.router.navigate(['/']);
       } else {
         this.authService.createPerson(this.person).subscribe(result => {
           if (result) {
+            alert('User created successfully !!!\nYou can sing in !!!');
             // https://codepen.io/nishanc/pen/NWWPdZE
             console.log(result);
-            this.router.navigate(['/login']);
-            window.location.reload();
-            alert('User created successfully\nNow you can login');
+            // this.router.navigate(['/login']);
+            // window.location.reload();
           }
         });
         this.router.navigate(['/login']);
@@ -123,5 +124,47 @@ export class LoginComponent implements OnInit {
 
   get sigInPassword() {
     return this.signInForm.get('password');
+  }
+
+  /*
+    Designed by: SELECTO
+    Original image: https://dribbble.com/shots/5311359-Diprella-Login
+*/
+
+  observer() {
+    let switchCtn = document.querySelector('#switch-cnt');
+    let switchC1 = document.querySelector('#switch-c1');
+    let switchC2 = document.querySelector('#switch-c2');
+    let switchCircle = document.querySelectorAll('.switch__circle');
+    let switchBtn = document.querySelectorAll('.switch-btn');
+    let aContainer = document.querySelector('#a-container');
+    let bContainer = document.querySelector('#b-container');
+    let allButtons = document.querySelectorAll('.submit');
+
+    let getButtons = (e: { preventDefault: () => any; }) => e.preventDefault();
+
+    let changeForm = (e: any) => {
+      switchCtn?.classList.add('is-gx');
+      setTimeout(function () {
+        switchCtn?.classList.remove('is-gx');
+      }, 1500);
+
+      switchCtn?.classList.toggle('is-txr');
+      switchCircle[0].classList.toggle('is-txr');
+      switchCircle[1].classList.toggle('is-txr');
+
+      switchC1?.classList.toggle('is-hidden');
+      switchC2?.classList.toggle('is-hidden');
+      aContainer?.classList.toggle('is-txl');
+      bContainer?.classList.toggle('is-txl');
+      bContainer?.classList.toggle('is-z200');
+    };
+
+    let mainF = (e: any) => {
+      for (var i = 0; i < allButtons.length; i++) allButtons[i].addEventListener('click', getButtons);
+      for (var i = 0; i < switchBtn.length; i++) switchBtn[i].addEventListener('click', changeForm);
+    };
+
+    window.addEventListener('load', mainF);
   }
 }

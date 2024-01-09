@@ -42,7 +42,7 @@ export class AuthService {
     sessionStorage.setItem('UserFirstName', person.firstname);
     sessionStorage.setItem('UserLastName', person.lastname);
     sessionStorage.setItem('UserGender', person.gender);
-    sessionStorage.setItem('UserPhoto', person.img);
+    sessionStorage.setItem('UserPhoto', person.photo);
     sessionStorage.setItem('User', JSON.stringify(person));
 
     console.log(sessionStorage.getItem('UserFirstName'));
@@ -86,10 +86,6 @@ export class AuthService {
 
   deletePerson(id: string): Observable<Person> {
     return this.http.delete<Person>(`${this.apiUrl}/delete/${id}`);
-  }
-
-  init(): Observable<Person[] | string> {
-    return this.http.get<Person[] | string>(`${this.apiUrl}/init`);
   }
 
   getChildrenByPersonId(id: string): Observable<Person[]> {

@@ -21,7 +21,7 @@
                     <img class="form__icon" src="assets/svg/twitter.svg">
                 </div>
                 <span class="form__span">or use email for registration</span>
-                <input type="text" class="form__input" placeholder="Name" name="name" formControlName="name" required
+                <input type="text" class="form__input" placeholder="FirstName" name="name" formControlName="name" required
                     autocomplete="current-name" />
                 <div *ngIf="signUpForm.get('name')?.invalid && isValidFormSubmitted != undefined && !isValidFormSubmitted"
                     [ngClass]="'error'">

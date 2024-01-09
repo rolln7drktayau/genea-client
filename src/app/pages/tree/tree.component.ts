@@ -3,7 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../navbar/navbar.component';
-import { UserService } from '../../services/user/user.service';
 // import { Person } from './models/person.model';
 import { User } from '../../models/user.model';
 import FamilyTree from '@balkangraph/familytree.js';
@@ -51,20 +50,48 @@ export class TreeComponent implements OnInit {
             nodeMenu: {
               edit: { text: 'Edit' },
               details: { text: 'Details' },
-              remove: { text: 'Delete' }
+              remove: {
+                text: 'Delete',
+                // onClick: function (nodeId: any) {
+                //   console.log('clicked on remove node', nodeId);
+                // }
+                onClick: (nodeId: string) => {
+                  console.log('clicked on node to remove : ', nodeId);
+                  // let toRemove: string = `"${args.removeNodeId}"`;
+                  // console.log(toRemove);
+                  // let idToRemove = nodeId;
+                  family.removeNode(nodeId);
+                  this.authService.getPersonById(nodeId).subscribe(result => {
+                    if (result) {
+                      console.log(result);
+                      if (result.email !== null && result.email !== undefined) {
+                        console.log('Person To Remove : ', result);
+                        let toUpdate = this.removePersonFromTree(result, nodeId);
+                        this.updateData(toUpdate);
+                      }
+                      else {
+                        this.authService.deletePerson(nodeId).subscribe(isDeleted => {
+                          console.log('Person Deleted : ', isDeleted);
+                        });
+                      }
+                    }
+                  });
+                }
+              }
             },
             editForm: {
               addMore: '',
               generateElementsFromFields: false,
               // titleBinding: "name",
-              photoBinding: "photo",
+              // photoBinding: "img",
               buttons: {
-                remove: {
-                  icon: FamilyTree.icon.remove(24, 24, '#fff'),
-                  text: 'Delete',
-                  hideIfEditMode: true,
-                  hideIfDetailsMode: false
-                }
+                // remove: {
+                //   icon: FamilyTree.icon.remove(24, 24, '#fff'),
+                //   text: 'Delete',
+                //   hideIfEditMode: true,
+                //   hideIfDetailsMode: false
+                // }
+                remove: null
               },
               elements: [
                 [
@@ -76,8 +103,8 @@ export class TreeComponent implements OnInit {
                   { type: 'date', label: 'Birthday Date', binding: 'bdate' }
                 ],
                 [
-                  { type: 'textbox', label: 'Gender', binding: 'gender'},
-                  { type: 'textbox', label: 'Photo Url', binding: 'ImgUrl', btn: 'Upload' }
+                  { type: 'textbox', label: 'Gender (Male / Female)', binding: 'gender' },
+                  { type: 'textbox', label: 'Photo Url', binding: 'photo', btn: 'Upload' }
                 ]
               ]
             },
@@ -97,7 +124,7 @@ export class TreeComponent implements OnInit {
               field_1: "email",
               // field_2: "father",
               // field_3: "mid",
-              img_0: "img",
+              img_0: "photo",
             },
             menu: {
               pdf: { text: "Export PDF" },
@@ -109,6 +136,7 @@ export class TreeComponent implements OnInit {
 
           family.editUI.on('save', (sender, args) => {
             this.authService.getPersonByEmail(args.data).subscribe(isPresent => {
+              // let toUpdate;
               if (isPresent) {
                 console.warn('Founded person :', isPresent);
                 let toUpdate = this.updatePerson(isPresent, args.data);
@@ -119,25 +147,26 @@ export class TreeComponent implements OnInit {
             });
           });
 
-          family.on('update', (sender, args) => {
-            if (!(args.removeNodeId == null) && !(args.removeNodeId == undefined)) {
-              // let toRemove: string = `"${args.removeNodeId}"`;
-              // console.log(toRemove);
-              this.authService.getPersonById(args.removeNodeId).subscribe(result => {
-                if (result) {
-                  if (result.email !== null && result.email !== undefined) {
-                    console.log('Person To Remove : ', result);
-                    let toUpdate = this.removePersonFromTree(result, args.removeNodeId);
-                    this.updateData(toUpdate);
-                  }
-                  else {
-                    this.authService.deletePerson(result.id).subscribe(isDeleted => {
-                      console.log('Person Deleted : ', isDeleted);
-                    });
-                  }
-                }
+          family.editUI.on('element-btn-click', (sender, args) => {
+            FamilyTree.fileUploadDialog((file) => {
+              // console.log(args);
+              // if (args.element.binding === 'i') {
+              console.log('Upload a photo');
+              let data = new FormData();
+              data.append('file', file);
+
+
+              this.authService.getPersonById(args.nodeId).subscribe(result => {
+                result.photo = file;
+                this.updateData(result);
               });
-            }
+
+              // alert('upload the file');
+              console.log(file);
+              console.log(data);
+              console.log(args);
+              console.log(sender);
+            })
           });
 
           family.load(this.persons);
@@ -150,7 +179,21 @@ export class TreeComponent implements OnInit {
   transformPersonsData(persons: any[]): any[] {
     try {
       return persons.map((person) => {
-        let transformedPerson: { id: number; pids?: number[]; firstname: string; lastname: string; name: string; gender: string; email: string; img: string; mid?: number; fid?: number, password?: string } = {
+        let transformedPerson: {
+          id: number;
+          pids?: string[];
+          firstname: string;
+          lastname: string;
+          name: string;
+          gender: string;
+          email: string;
+          photo: any;
+          mid?: number;
+          fid?: number,
+          password?: string,
+          mem?: any[]
+        } =
+        {
           id: person.id,
           firstname: person.firstname,
           lastname: person.lastname,
@@ -160,8 +203,9 @@ export class TreeComponent implements OnInit {
           pids: person.pids,
           gender: person.gender,
           email: person.email,
-          img: person.img, // Replace with the actual image URL
-          password: person.password
+          photo: person.photo,
+          password: person.password,
+          mem: person.mem
         };
         return transformedPerson;
       });
@@ -171,7 +215,7 @@ export class TreeComponent implements OnInit {
     }
   }
 
-  mailHandler (recipient: Person) {
+  mailHandler(recipient: Person) {
     let initiator = new Person();
     let user = sessionStorage.getItem('User');
     if (user != null) {
@@ -199,12 +243,26 @@ export class TreeComponent implements OnInit {
 
     existingPerson.id = newPerson.id;
     existingPerson.name = newPerson.name;
+    existingPerson.firstname = newPerson.firstname;
+    existingPerson.lastname = newPerson.lastname;
+    existingPerson.gender = newPerson.gender;
+    existingPerson.email = newPerson.email;
+    newPerson.password = existingPerson.password;
+
     newPerson.pids.forEach((element: any) => {
-      existingPerson.pids.push(element);
+      if (!existingPerson.pids.includes(element)) {
+        existingPerson.pids.push(element);
+      }
     });
+
     existingPerson.mid = newPerson.mid;
     existingPerson.fid = newPerson.fid;
     existingPerson.bdate = newPerson.bdate;
+    existingPerson.photo = newPerson.photo;
+
+    newPerson.mem.forEach((element: any) => {
+      existingPerson.mem.push(element);
+    });
 
     this.authService.deletePerson(idtodelete).subscribe(isDeleted => {
       if (isDeleted) {
@@ -215,13 +273,15 @@ export class TreeComponent implements OnInit {
     return existingPerson;
   }
 
-  removePersonFromTree(person : any, nodeId : string) : any {
-    person.mid = '';
-    person.fid = '';
+  removePersonFromTree(person: any, nodeId: string): any {
+    let personToRemove: Person = person;
+    personToRemove.mid = 'Undefined';
+    personToRemove.fid = 'Undefined';
     this.persons.forEach(person => {
       if (person.pid)
         person.pid = person.pid.filter((id: string) => id !== nodeId);
     });
+    return personToRemove;
   }
 
   getPersons(): void {

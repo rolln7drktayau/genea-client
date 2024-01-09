@@ -14,14 +14,15 @@ export class Person {
   mid: string;
   fid: string;
   bdate: string;
-  img: string;
+  photo: any;
+  mem: Array<any>;
 
   // define the constructor
-  constructor(id?: string, name?: string, firstname?: string, lastname?: string, gender?: string, email?: string, password?: string, partner?: Array<string>, mother?: string, father?: string, date?: string, photo?: string) {
+  constructor(id?: string, name?: string, firstname?: string, lastname?: string, gender?: string, email?: string, password?: string, partner?: Array<string>, mother?: string, father?: string, date?: string, photo?: any, mem?: Array<any>) {
     this.id = id || '';
     this.name = firstname + ' ' + lastname || '';
     this.firstname = firstname || '';
-    this.lastname = lastname || 'Unknown';
+    this.lastname = lastname || '';
     this.gender = gender || '';
     this.email = email || '';
     this.password = password || '';
@@ -29,7 +30,8 @@ export class Person {
     this.mid = mother || '';
     this.fid = father || '';
     this.bdate = date || '';
-    this.img = photo || '';
+    this.photo = photo || '';
+    this.mem = mem || [];
   }
 
   // optionally, define some methods

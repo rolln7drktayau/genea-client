@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Person } from '../../models/person.model';
-import { Node } from '../../models/node.model';
 
 @Injectable({
   providedIn: 'root'
@@ -15,27 +14,27 @@ export class PersonService {
 
   constructor(private http: HttpClient) { }
 
-  getNodeRelationships(nodeId: number): Node[] {
-    const node = this.nodes.find(node => node.id === nodeId);
-    if (!node) {
-      throw new Error(`Node with ID ${nodeId} not found.`);
-    }
+  // getNodeRelationships(nodeId: number): Node[] {
+  //   const node = this.nodes.find(node => node.id === nodeId);
+  //   if (!node) {
+  //     throw new Error(`Node with ID ${nodeId} not found.`);
+  //   }
 
-    // Find parent node
-    const parentNode = this.nodes.find(node => node.id === node.pid);
+  //   // Find parent node
+  //   const parentNode = this.nodes.find(node => node.id === node.pid);
 
-    // Find child nodes
-    const childNodes = this.nodes.filter(node => node.pid === nodeId);
+  //   // Find child nodes
+  //   const childNodes = this.nodes.filter(node => node.pid === nodeId);
 
-    // Combine parent and child nodes
-    const relationships = [];
-    if (parentNode) {
-      relationships.push(parentNode);
-    }
-    relationships.push(...childNodes);
+  //   // Combine parent and child nodes
+  //   const relationships = [];
+  //   if (parentNode) {
+  //     relationships.push(parentNode);
+  //   }
+  //   relationships.push(...childNodes);
 
-    return relationships;
-  }
+  //   return relationships;
+  // }
 
   removeIdFromPersons(persons: any[], personToRemove: Person): any[] {
     const idToRemove = personToRemove.id;

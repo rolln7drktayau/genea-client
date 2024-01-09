@@ -22,8 +22,11 @@ export class NavbarComponent {
     if (this.authService.isAValidUser) {
       this.router.navigate([path]);
     } else {
-      this.router.navigate(['/login']);
+      // this.router.navigate(['/login']);
+      // window.location.reload();
+      this.refreshPage();
       window.location.reload();
+      this.router.navigate(['/login']);
     }
     // this.authService.isAValidUser = true;
   }
@@ -38,7 +41,9 @@ export class NavbarComponent {
     // Implement your sign out logic here
     console.log("Signed Out !!!");
     this.authService.deleteSession();
-    // window.location.reload();
+    
+    this.refreshPage();
+    window.location.reload();
     this.router.navigate(['/login']);
     // this.refreshPage();
     new observer();
