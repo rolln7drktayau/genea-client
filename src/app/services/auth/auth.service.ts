@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Person } from '../../models/person.model';
 import { PersonService } from '../person/person.service';
+import { Stats } from '../../models/stats.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,8 @@ export class AuthService {
   private apiUrl = 'http://localhost:8080/api/persons';
   isAValidUser: boolean = false
   family: any[] = [];
+  persons: Person[] = [];
+  stats: Stats = new Stats(0, 0, 0, 0);
 
   constructor(private http: HttpClient) { }
 
@@ -46,13 +49,32 @@ export class AuthService {
     sessionStorage.setItem('User', JSON.stringify(person));
 
     console.log(sessionStorage.getItem('UserFirstName'));
+    let user = sessionStorage.getItem('User');
+    if (user != null)
+      console.log(JSON.parse(user));
+
+    this.getAllPersons().subscribe(persons => {
+      // this.persons = persons;
+      persons.forEach(user => {
+        if (user.mem.length > 0) {
+          this.stats.memories = this.stats.memories + user.mem.length;
+        }
+        if (user.gender === 'male') {
+          this.stats.male++;
+        }
+        if (user.gender === 'female') {
+          this.stats.female++;
+        }
+      });
+      this.stats.connections++;
+      sessionStorage.setItem('Stats', JSON.stringify(this.stats));
+    });
+
   }
 
   deleteSession() {
     sessionStorage.clear();
   }
-
-
 
   isAdmin(person: Person): boolean {
     return (person.email === 'rct' && person.password === 'rct');

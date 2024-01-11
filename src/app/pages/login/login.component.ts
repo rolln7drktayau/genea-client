@@ -2,7 +2,7 @@ import { Component, Inject, Injectable, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Person } from '../../models/person.model';
 import { RouterOutlet, RouterLink, Router, CanActivateFn } from '@angular/router';
-import { PersonService } from '../../services/person/person.service';
+import { StatsService } from '../../services/stats/stats.service';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { authGuard } from '../../shield/auth.guard';
 import { AuthService } from '../../services/auth/auth.service';
@@ -32,7 +32,7 @@ export class LoginComponent implements OnInit {
     password: new FormControl('', [Validators.required])
   });
 
-  constructor(private formBuilder: FormBuilder, private router: Router, private authService: AuthService) {
+  constructor(private formBuilder: FormBuilder, private router: Router, private authService: AuthService, private statsService: StatsService) {
   }
 
   ngOnInit(): void {
@@ -55,7 +55,9 @@ export class LoginComponent implements OnInit {
         // console.log(result);
         if (result) {
           this.authService.isAValidUser = true;
+          this.statsService.setStats();
           this.authService.setSession(result);
+          this.statsService.saveStats();
           this.router.navigate(['/home']);
         } else {
           // if (this.authService.isAdmin(result)) {

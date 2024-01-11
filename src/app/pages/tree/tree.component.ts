@@ -3,8 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../navbar/navbar.component';
-// import { Person } from './models/person.model';
-import { User } from '../../models/user.model';
 import FamilyTree from '@balkangraph/familytree.js';
 import { AuthService } from '../../services/auth/auth.service';
 import { Person } from '../../models/person.model';

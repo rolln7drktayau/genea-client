@@ -14,28 +14,6 @@ export class PersonService {
 
   constructor(private http: HttpClient) { }
 
-  // getNodeRelationships(nodeId: number): Node[] {
-  //   const node = this.nodes.find(node => node.id === nodeId);
-  //   if (!node) {
-  //     throw new Error(`Node with ID ${nodeId} not found.`);
-  //   }
-
-  //   // Find parent node
-  //   const parentNode = this.nodes.find(node => node.id === node.pid);
-
-  //   // Find child nodes
-  //   const childNodes = this.nodes.filter(node => node.pid === nodeId);
-
-  //   // Combine parent and child nodes
-  //   const relationships = [];
-  //   if (parentNode) {
-  //     relationships.push(parentNode);
-  //   }
-  //   relationships.push(...childNodes);
-
-  //   return relationships;
-  // }
-
   removeIdFromPersons(persons: any[], personToRemove: Person): any[] {
     const idToRemove = personToRemove.id;
     persons.forEach(person => {
