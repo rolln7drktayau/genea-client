@@ -11,6 +11,6 @@ export const authGuard: CanActivateFn = () => {
   // } else {
   //   return false;
   // }
-  // return authService.isAValidUser;
-  return true;
+  return authService.isAValidUser;
+  // return true;
 };
