@@ -4,19 +4,21 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Person } from '../../models/person.model';
 import { PersonService } from '../person/person.service';
-import { Stats } from '../../models/stats.model';
+import { Stats } from '../../models/stats.model'; 
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private apiUrl = 'http://localhost:8080/api/persons';
+  private statsUrl = 'http://localhost:8080/api/stats';
   isAValidUser: boolean = false
   family: any[] = [];
   persons: Person[] = [];
   stats: Stats = new Stats(0, 0, 0, 0);
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+  }
 
   // Login 
   checkPerson(person: Person): Observable<Person> {
@@ -36,8 +38,6 @@ export class AuthService {
     return this.http.put<Person>(`${this.apiUrl}/update/${id}`, personDetails);
   }
 
-
-
   setSession(person: Person) {
     // this.isLoggedIn = true;
     this.family.push(person);
@@ -49,6 +49,10 @@ export class AuthService {
     sessionStorage.setItem('User', JSON.stringify(person));
 
     console.log(sessionStorage.getItem('UserFirstName'));
+    this.setStats();
+  }
+
+  setStats() {
     let user = sessionStorage.getItem('User');
     if (user != null)
       console.log(JSON.parse(user));
@@ -70,6 +74,37 @@ export class AuthService {
       sessionStorage.setItem('Stats', JSON.stringify(this.stats));
     });
 
+    this.saveStats();
+  }
+
+  getTeam(): any[] {
+    let team: Person[] = [];
+    this.getAllPersons().subscribe((persons) => {
+      persons.forEach((person) => {
+        if (person.status === 'Team') {
+          team.push(person);
+        }
+      });
+    });
+    return team;
+  }
+
+  getStats(): Observable<Stats[]> {
+    return this.http.get<Stats[]>(`${this.statsUrl}/`);
+  }
+
+  updateStats(stats: Stats): Observable<Stats> {
+    return this.http.post<Stats>(`${this.statsUrl}/update`, stats);
+  }
+
+  saveStats(): void {
+    let stats = sessionStorage.getItem('Stats');
+    if (stats != null) {
+      let toSave = JSON.parse(stats);
+      this.updateStats(toSave).subscribe((result: any) => {
+        console.log(result);
+      });
+    }
   }
 
   deleteSession() {

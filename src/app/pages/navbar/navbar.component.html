@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" class="material-icons">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 
 <body>
@@ -47,10 +48,16 @@
                     </i>
                     <p>memories</p>
                 </li>
-                <li (click)="toggleTheme()">
+                <!-- <li *ngIf="isAuthenticated" (click)="navigate('/team')" >
+                    <i class="material-icons md-light material-symbols-outlined">
+                        groups_2
+                    </i>
+                    <p>team</p>
+                </li> -->
+                <!-- <li (click)="toggleTheme()">
                     <i class="material-icons md-light">dark_mode</i>
                     <p>Theme</p>
-                </li>
+                </li> -->
                 <li (click)="signOut()">
                     <i class="material-icons md-light">logout</i>
                     <p>Sign Out</p>

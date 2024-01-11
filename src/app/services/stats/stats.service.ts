@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Stats } from '../../models/stats.model';
 import { Observable } from 'rxjs';
+import { Person } from '../../models/person.model';
 
 @Injectable({
   providedIn: 'root'
@@ -18,22 +19,6 @@ export class StatsService {
 
   updateStats(stats: Stats): Observable<Stats> {
     return this.http.post<Stats>(`${this.apiUrl}/update`, stats);
-  }
-
-  setStats() {
-    this.getStats().subscribe(stats => {
-      stats.forEach(element => {
-        sessionStorage.setItem('Stats', JSON.stringify(element));
-        if (stats != null) {
-          this.stats = stats;
-          let toLog = sessionStorage.getItem('Stats');
-          if (toLog != null)
-            console.log(JSON.parse(toLog));
-        }
-      });
-    });
-
-
   }
 
   saveStats(): void {

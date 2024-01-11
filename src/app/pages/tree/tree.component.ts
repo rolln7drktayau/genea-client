@@ -103,6 +103,9 @@ export class TreeComponent implements OnInit {
                 [
                   { type: 'textbox', label: 'Gender (Male / Female)', binding: 'gender' },
                   { type: 'textbox', label: 'Photo Url', binding: 'photo', btn: 'Upload' }
+                ],
+                [
+                  { type: 'textbox', label: 'Description:', binding: 'desc' }
                 ]
               ]
             },
@@ -120,7 +123,7 @@ export class TreeComponent implements OnInit {
             nodeBinding: {
               field_0: "name",
               field_1: "email",
-              // field_2: "father",
+              field_2: "desc",
               // field_3: "mid",
               img_0: "photo",
             },
@@ -157,7 +160,7 @@ export class TreeComponent implements OnInit {
               this.authService.getPersonById(args.nodeId).subscribe(result => {
                 let reader = new FileReader();
                 reader.onload = () => {
-                  let personToUpdate : Person = result;
+                  let personToUpdate: Person = result;
                   personToUpdate.photo = reader.result;
                   this.updateData(personToUpdate);
                   console.log(reader);
@@ -190,7 +193,9 @@ export class TreeComponent implements OnInit {
           mid?: number;
           fid?: number,
           password?: string,
-          mem?: any[]
+          mem?: any[],
+          status?: string,
+          desc?: string
         } =
         {
           id: person.id,
@@ -204,7 +209,9 @@ export class TreeComponent implements OnInit {
           email: person.email,
           photo: person.photo,
           password: person.password,
-          mem: person.mem
+          mem: person.mem,
+          status: person.status,
+          desc: person.desc
         };
         return transformedPerson;
       });
@@ -236,6 +243,7 @@ export class TreeComponent implements OnInit {
       console.log('Updated Person:', person);
       console.log('The person was updated');
     });
+    this.authService.setStats();
   }
 
   updatePerson(existingPerson: any, newPerson: any): any {
@@ -259,6 +267,8 @@ export class TreeComponent implements OnInit {
     existingPerson.fid = newPerson.fid;
     existingPerson.bdate = newPerson.bdate;
     // existingPerson.photo = newPerson.photo;
+
+    existingPerson.desc = newPerson.desc;
 
     newPerson.mem.forEach((element: any) => {
       existingPerson.mem.push(element);

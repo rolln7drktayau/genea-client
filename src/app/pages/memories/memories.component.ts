@@ -33,9 +33,6 @@ export class memoriesComponent implements OnInit {
     }
   }
 
-  // In your component.ts
-
-
   onFileSelected(event: any) {
     const file = event.target.files[0];
     console.log(file);
@@ -57,7 +54,4 @@ export class memoriesComponent implements OnInit {
       });
     }
   }
-
-
-
 }

@@ -55,7 +55,6 @@ export class LoginComponent implements OnInit {
         // console.log(result);
         if (result) {
           this.authService.isAValidUser = true;
-          this.statsService.setStats();
           this.authService.setSession(result);
           this.statsService.saveStats();
           this.router.navigate(['/home']);

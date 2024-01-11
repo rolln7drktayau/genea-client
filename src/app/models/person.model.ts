@@ -16,9 +16,11 @@ export class Person {
   bdate: string;
   photo: any;
   mem: Array<any>;
+  status: string;
+  desc : string;
 
   // define the constructor
-  constructor(id?: string, name?: string, firstname?: string, lastname?: string, gender?: string, email?: string, password?: string, partner?: Array<string>, mother?: string, father?: string, date?: string, photo?: any, mem?: Array<any>) {
+  constructor(id?: string, name?: string, firstname?: string, lastname?: string, gender?: string, email?: string, password?: string, partner?: Array<string>, mother?: string, father?: string, date?: string, photo?: any, mem?: Array<any>, status?: string, desc?: string) {
     this.id = id || '';
     this.name = firstname + ' ' + lastname || '';
     this.firstname = firstname || '';
@@ -32,6 +34,8 @@ export class Person {
     this.bdate = date || '';
     this.photo = photo || '';
     this.mem = mem || [];
+    this.status = status || '';
+    this.desc = desc || '';
   }
 
   // optionally, define some methods
